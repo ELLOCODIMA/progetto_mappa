@@ -1,0 +1,170 @@
+/* 1. CONTAINER GENERALE (Layout di sfondo) */
+    .dashboard-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+        font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        background-color: #f8fafc; /* Grigio chiarissimo stile Apple/Tailwind */
+        min-height: 100vh;
+    }
+
+    /* 2. TITOLO MODERNO (Gradiente dinamico e font-weight estremo) */
+    h1 {
+        text-align: center;
+        font-size: 2.8rem;
+        font-weight: 800; /* Più marcato */
+        margin-top: 10px;
+        margin-bottom: 35px;
+        letter-spacing: -1.5px; /* Più stretto in stile tech */
+        
+        /* Gradiente da Verde LoRa a Blu Tech */
+        background: linear-gradient(135deg, #10b981 0%, #3b82f6 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        
+        /* Un leggero drop-shadow sul testo */
+        filter: drop-shadow(0px 2px 8px rgba(16, 185, 129, 0.1));
+    }
+
+    /* CONTROLS SECTION */
+    .controls {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        align-items: center;
+        margin-bottom: 30px;
+        flex-wrap: wrap;
+    }
+
+    /* SELECT WRAPPER CON ICONA */
+    .select-wrapper {
+        position: relative;
+        display: inline-block;
+        width: 100%;
+        max-width: 300px;
+    }
+
+    .select-icon {
+        position: absolute;
+        right: 16px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 20px;
+        height: 20px;
+        color: #64748b;
+        pointer-events: none;
+        z-index: 10;
+    }
+
+    #table-select {
+        width: 100%;
+        padding: 14px 45px 14px 16px;
+        border: 2px solid #e2e8f0;
+        border-radius: 12px;
+        font-size: 16px;
+        font-weight: 500;
+        color: #2c3e50;
+        background-color: #ffffff;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    }
+
+    #table-select:hover {
+        border-color: #3b82f6;
+        box-shadow: 0 4px 12px -2px rgba(59, 130, 246, 0.1);
+    }
+
+    #table-select:focus {
+        outline: none;
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1), 
+                    0 4px 12px -2px rgba(59, 130, 246, 0.15);
+        background: linear-gradient(135deg, #ffffff 0%, #f0f9ff 100%);
+    }
+
+    #table-select option {
+        padding: 12px;
+        color: #2c3e50;
+        background-color: #ffffff;
+    }
+
+    #table-select option:checked {
+        background: linear-gradient(135deg, #10b981 0%, #3b82f6 100%);
+        color: white;
+    }
+
+    /* DOWNLOAD BUTTON */
+    .btn-download {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 14px 24px;
+        border: none;
+        border-radius: 12px;
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px -2px rgba(16, 185, 129, 0.3);
+        font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        white-space: nowrap;
+    }
+
+    .btn-download:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 16px -2px rgba(16, 185, 129, 0.4);
+        background: linear-gradient(135deg, #059669 0%, #047857 100%);
+    }
+
+    .btn-download:active {
+        transform: translateY(0);
+        box-shadow: 0 2px 8px -2px rgba(16, 185, 129, 0.3);
+    }
+
+    .btn-icon {
+        width: 20px;
+        height: 20px;
+        stroke: currentColor;
+    }
+
+    /* 3. IL CONTAINER DELLA MAPPA (Effetto vetro sfumato) */
+    #map-container {
+        width: 100%;
+        height: 500px; /* Altezza generosa per vedere bene i punti */
+        border-radius: 16px; /* Angoli decisamente più morbidi */
+        background-color: #ffffff;
+        border: 1px solid #e2e8f0;
+        
+        /* Ombra moderna e profonda (soft shadow) */
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 
+                    0 8px 10px -6px rgba(0, 0, 0, 0.05);
+        
+        margin-bottom: 40px;
+        overflow: hidden; /* Evita che la mappa esca dagli angoli arrotondati */
+        transition: transform 0.3s ease;
+    }
+    
+    /*#map-container:hover {
+        transform: translateY(-2px); // Effetto sollevamento impercettibile 
+    }*/
+
+    /* 4. WRAPPER PER LA TABELLA */
+    /* Avvolgere la tabella permette di darle bordi arrotondati e scroll laterale su mobile */
+    .table-wrapper {
+        background: #ffffff;
+        border-radius: 16px;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02), 
+                    0 2px 4px -1px rgba(0, 0, 0, 0.02);
+        padding: 15px;
+        padding-bottom: 60px; /* Rimuove padding inferiore per allineare meglio con la tabella */
+        overflow-x: auto;
+        overflow-y: visible; /* Evita crash su smartphone */
+    }

@@ -66,8 +66,8 @@
                 <tr>
                     <td><span class="badge">{row.device_id}</span></td>
                     
-                    <td>{row.Latitude.toFixed(4)}</td> 
-                    <td>{row.Longitude.toFixed(4)}</td>
+                    <td>{row.Latitude.toFixed(6)}</td> 
+                    <td>{row.Longitude.toFixed(6)}</td>
                     <td class="timestamp">{formattaData(row.received_at)}</td>
                     <td><small>RSSI:</small> 
                         <span class="badge-rssi" style="background-color: {getColorByRssi(row.Rssi)}; color: white;">{row.Rssi} dBm</span>
@@ -79,7 +79,7 @@
                                 &#8942; </button>
                         {#if rowId === row.id}
                             <div class="dropdown-menu">
-                                <button class="btn-delete" onclick={() => { if(confirm("Vuoi davvero eliminare questa riga dal database?")) ondeleteRecord(row.id)}}>
+                                <button class="btn-delete" onclick={() =>   ondeleteRecord(row.id)}>
                                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
                                         Elimina
                                 </button>

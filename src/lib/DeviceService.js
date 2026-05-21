@@ -1,19 +1,24 @@
 import { supabase } from "./supabase";
 
 export class DeviceService {
-    constructor(tableName) {
+    constructor(tableName,limit) {
         
         this.tableName = tableName;
         this.subscription = null;
+        this.limiteEffettivo=limit;
+        
     }
     
-    async fetchData(limit = 40) 
+    async fetchData(limit) 
     {
+        if (limit !== undefined) {
+            this.limiteEffettivo = limit;
+        }
         const { data, error } = await supabase
             .from(this.tableName)
             .select('*')
             .order('received_at', { ascending: false })
-            .limit(limit);
+            .limit(this.limiteEffettivo);
         
 
         if (error) {
@@ -72,5 +77,49 @@ export class DeviceService {
                 return item.tablename;
             }});
         return nomitabelle;
+    }
+    async getRouterPosition()
+    {
+        const{data, error}= await supabase
+        .schema('Router_position')
+        .from('pos_Router')
+        .select('*')
+        .order('id',{ascending:false})
+        .limit(1);
+        if (error) 
+        {
+            console.error("Errore nel recupero del router:", error.message);
+            return null;
+        }
+        return data && data.length > 0 ? data[0] : null;    
+    }
+    async upsertRouterPosition(payload)
+    {
+        const{data, error}= await supabase
+        .schema('Router_position')
+        .from('pos_Router')
+        .upsert(payload, { onConflict: 'id' })
+        .select();
+
+        if (error) 
+        {
+            console.error("Errore nel salvataggio del router:", error.message);
+            return null;
+        }
+        return data && data.length > 0 ? data[0] : null;
+    }   
+    async deleteRouterPosition(routerid){
+        if(!routerid) return true;
+        const { error } = await supabase
+        .schema('Router_position')
+        .from('pos_Router')
+        .delete()
+        .eq('id', routerid);
+        if (error) 
+            {
+            console.error("Errore nella cancellazione del router:", error.message);
+            return false;
+        }
+        return true;
     }
 }
