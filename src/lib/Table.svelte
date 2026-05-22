@@ -1,10 +1,12 @@
 <script>
   
-  import { onMount } from 'svelte';
-    
+    import { onMount } from 'svelte';
+    import{CalcolaDistanza} from '$lib/GeoUtils';
 
-    let { dati=[], ondeleteRecord } = $props();
+
+    let { dati=[], ondeleteRecord,routerData } = $props();
     let rowId=$state(null);
+    
     function formattaData(isoString) {
         const d = new Date(isoString);
         return d.toLocaleString('it-IT', {
@@ -54,6 +56,7 @@
                 <th>Timestamp</th>
                 <th>Rssi</th>
                 <th>Snr</th>
+                <th>Distanza</th>
             </tr>
         </thead>
         <tbody>
@@ -74,6 +77,7 @@
                         
                         </td>
                     <td><small>SNR:</small> <b>{row.Snr}</b></td>
+                    <td><b>{CalcolaDistanza(row.Latitude, row.Longitude, routerData)}</b></td>
                     <td style="text-align: center; position: relative;">
                         <button class="btn-action" onclick={(event) => toggleMenu(row.id, event)}>
                                 &#8942; </button>

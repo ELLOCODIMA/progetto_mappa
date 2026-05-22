@@ -6,6 +6,7 @@
         selectedTable = '', 
         routerLat = $bindable(), // $bindable serve per l'input bidirezionale delle coordinate
         routerLon = $bindable(), 
+        routerRecordId,
         limiteDati = $bindable(),
         onCambioTendina, 
         onRouterChange, 
@@ -83,6 +84,10 @@
     </div>
     <div id="map-container" ></div>
     <div class="table-wrapper">
-        <Table dati={datigps} ondeleteRecord={handleDeleteRecord}/>
+        <Table 
+        dati={datigps}
+        ondeleteRecord={handleDeleteRecord}
+        routerData={{Latitude:routerLat,Longitude: routerLon,id:routerRecordId}} 
+         />
     </div>
 </main>

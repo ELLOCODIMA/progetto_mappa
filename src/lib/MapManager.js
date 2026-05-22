@@ -38,7 +38,7 @@ export class MapManager
         
        
     }
-    updateMarkers(gpsData)
+    updateMarkers(gpsData,routerData)
     {
         if (!this.map || !this.L) return; // Assicurati che la mappa sia inizializzata
         this.markers.forEach(m => this.map.removeLayer(m)); // Rimuovi i marker esistenti
@@ -48,7 +48,16 @@ export class MapManager
             const lng = parseFloat(point.Longitude);
             if (!isNaN(lat) && !isNaN(lng)) {
                 const color = this.colorByRssi(point.Rssi);
-
+                
+                let distanzaHtml="";
+                if(routerData && routerData.Latitude && routerData.Longitude){
+                    const rLat=parseFloat(routerData.Latitude);
+                    const rLon=parseFloat(routerData.Longitude);
+                    if(!isNaN(rLat) && !isNaN(rLon)){
+                        const dist =this.map.distance([lat,lng],[rLat,rLon])
+                        distanzaHtml=`<br><b style ="color:#3b82f6;">Distanza Router:</b> ${Math.round(dist)} m`;
+                    }
+                }
                 // --- 2. TEMPLATE SVG DINAMICO ---
                 const svgIcon = this.L.divIcon({
                     className: 'custom-pin',
@@ -79,6 +88,7 @@ export class MapManager
                 <br><b>RSSI:</b> ${point.Rssi}<br><b>SNR:</b> ${point.Snr}
                 <br><b>Latitude:</b> ${point.Latitude}
                 <br><b>Longitude:</b> ${point.Longitude}
+                ${distanzaHtml}
                 <button class="btn_delete"   style="background-color: #dc3545; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; width: 100%; font-weight: bold; font-family: sans-serif;">Elimina</button>`
                 
                 );

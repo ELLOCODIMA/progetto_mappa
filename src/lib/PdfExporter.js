@@ -1,9 +1,9 @@
 
 import { browser } from '$app/environment';
 
+import { CalcolaDistanza } from './GeoUtils';
 
-
-export async function exportToPDF(mapContainer,tableData,selectedTable) {
+export async function exportToPDF(mapContainer,tableData,selectedTable,routerData) {
     if (!browser) return;
     try{
         const html2Module = (await import('html2pdf.js'));
@@ -21,6 +21,7 @@ export async function exportToPDF(mapContainer,tableData,selectedTable) {
         titolo.textContent='Wireless Signal Tracker - Report';
         titolo.style.textAlign = 'center';
         titolo.style.marginBottom = '10px';
+        titolo.style.background='none';
         titolo.style.color = '#333';
         contenutopdf.appendChild(titolo);
 
@@ -89,7 +90,7 @@ export async function exportToPDF(mapContainer,tableData,selectedTable) {
 
         if(tableData.length > 0){
             const headerRow = table.insertRow();
-            const colonneVisibili = ['device_id', 'Latitude', 'Longitude', 'Rssi', 'Snr', 'received_at'];
+            const colonneVisibili = ['device_id', 'Latitude', 'Longitude', 'Rssi', 'Snr', 'received_at','Distanza'];
             colonneVisibili.forEach(key => {
                 const cell = headerRow.insertCell();
                 cell.textContent = key;
@@ -99,6 +100,7 @@ export async function exportToPDF(mapContainer,tableData,selectedTable) {
                 cell.style.fontWeight = 'bold';
                 cell.style.textAlign = 'center';
                 cell.style.fontSize = '12px';
+
                 cell.style.fontWeight = 'bold';
             });
             tableData.forEach((rowData , index) => {
@@ -112,12 +114,15 @@ export async function exportToPDF(mapContainer,tableData,selectedTable) {
                         value = value.toFixed(5);
                     }else if(key === 'Rssi' && value){
                         value = `${value} dBm`;
+                    }else if (key==='Distanza'){
+                        value=CalcolaDistanza(rowData.Latitude,rowData.Longitude,routerData)
                     }
 
                     cell.textContent = value||'-';
                     cell.style.border = '1px solid #ddd';
                     cell.style.padding = '4px 2px';
                     cell.style.fontSize = '12px';
+                    cell.style.textAlign = 'center';
                     cell.style.backgroundColor = index % 2 === 0 ? '#fff' : '#f9f9f9';
                 });
             });

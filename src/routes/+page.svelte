@@ -17,30 +17,33 @@
     let routerLat=$state();
     let routerLon=$state();
     let routerRecordId =$state(null);
+    
     async function onRouterChange(){
         if (!routerLat || !routerLon) return;
+        const payloadRouter={
+        Latitude: routerLat,
+        Longitude: routerLon,
+        id: routerRecordId
+    }
         if(mapManager){
-            mapManager.updateRouterMarker(
-                {
-                    Latitude: routerLat,
-                    Longitude: routerLon,
-                    id: routerRecordId
-                }
-            );
+            mapManager.updateRouterMarker(payloadRouter );
+            mapManager.updateMarkers(datigps,payloadRouter);
 
         }
+        /*
         const payload ={
             Latitude: routerLat,
             Longitude : routerLon
         };
         if (routerRecordId){
             payload.id=routerRecordId;
-        }
-        const savedRouter= await deviceService.upsertRouterPosition(payload);
-         if (savedRouter) {
-        routerLat = '';  // ← svuota i campi
-        routerLon = '';  // ← svuota i campi
-        // oppure i nomi delle tue variabili Svelte legate agli input
+        }*/
+        const savedRouter= await deviceService.upsertRouterPosition(payloadRouter);
+        if (savedRouter) {
+            routerRecordId=savedRouter.id;
+            /*routerLat = '';  // ← svuota i campi
+            routerLon = '';  // ← svuota i campi
+        // oppure i nomi delle tue variabili Svelte legate agli input*/
         }
     }
     
@@ -54,12 +57,12 @@
         
         datigps = await deviceService.fetchData(limiteEffettivo);
         if (mapManager) {
-            mapManager.updateMarkers(datigps);
+            mapManager.updateMarkers(datigps,{ Latitude: routerLat, Longitude: routerLon });
         }
         deviceService.subscribeToChanges((newData) => {
             datigps = newData;
             if (mapManager) {
-                mapManager.updateMarkers(datigps);
+                mapManager.updateMarkers(datigps,{ Latitude: routerLat, Longitude: routerLon });
             }
         });
     }
@@ -113,7 +116,7 @@
         const successo = await deviceService.deleteRecord(id);
         if(successo){
             datigps = datigps.filter(record => record.id !== id);
-            mapManager.updateMarkers(datigps);
+            mapManager.updateMarkers(datigps,{ Latitude: routerLat, Longitude: routerLon });
         } else {
             console.error('Errore durante l\'eliminazione del record');
         }
@@ -153,7 +156,12 @@
     async function onExportPDF()
     {
         const mapContainer = document.getElementById('map-container');
-        await exportToPDF(mapContainer,datigps,selectedTable);
+        const routerData = {
+            Latitude: routerLat,
+            Longitude: routerLon,
+            id: routerRecordId
+        };
+        await exportToPDF(mapContainer,datigps,selectedTable,routerData);
     }
 
 </script>
@@ -162,6 +170,7 @@
     bind:limiteDati={limiteDati}
     bind:routerLat={routerLat}
     bind:routerLon={routerLon}
+    routerRecordId={routerRecordId}
     datigps={datigps}
     tableList={tableList}
     selectedTable={selectedTable}
