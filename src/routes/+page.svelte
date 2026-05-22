@@ -20,7 +20,13 @@
     async function onRouterChange(){
         if (!routerLat || !routerLon) return;
         if(mapManager){
-            mapManager.updateRouterMarker(routerLat,routerLon,routerRecordId);
+            mapManager.updateRouterMarker(
+                {
+                    Latitude: routerLat,
+                    Longitude: routerLon,
+                    id: routerRecordId
+                }
+            );
 
         }
         const payload ={
@@ -31,30 +37,13 @@
             payload.id=routerRecordId;
         }
         const savedRouter= await deviceService.upsertRouterPosition(payload);
-         if (result) {
+         if (savedRouter) {
         routerLat = '';  // ← svuota i campi
         routerLon = '';  // ← svuota i campi
         // oppure i nomi delle tue variabili Svelte legate agli input
         }
     }
-    async function handleDeleteRouter() {
-        if (!confirm("Vuoi davvero eliminare la posizione del router dal database?")) {
-            return;
-        }
-
-        if (routerRecordId) {
-            // Chiediamo al servizio di cancellarlo
-            const successo = await deviceService.deleteRouterPosition(routerRecordId);
-            if (!successo) return;
-        }
-
-        routerLat = null;
-        routerLon = null;
-        routerRecordId = null;
-        if (mapManager) {
-            mapManager.clearRouterMarker();
-        }
-    }
+    
     async function caricaTab(nomeTab) {
         if (!nomeTab) return;
         if (deviceService){
@@ -81,7 +70,7 @@
   
         
         await import('leaflet/dist/leaflet.css');
-        mapManager = new MapManager('map-container',handleDeleteRecord);
+        mapManager = new MapManager('map-container',handleDeleteRecord,handleDeleteRouter);
         deviceService = new DeviceService('Lora_E5');
         await mapManager.init();
 
@@ -90,7 +79,7 @@
             routerLat = routerData.Latitude;
             routerLon = routerData.Longitude;
             routerRecordId = routerData.id;
-            mapManager.updateRouterMarker(routerLat, routerLon, routerRecordId);
+            mapManager.updateRouterMarker(routerData);
         }
 
 
@@ -129,6 +118,27 @@
             console.error('Errore durante l\'eliminazione del record');
         }
     }
+    async function handleDeleteRouter() {
+        if (!confirm("Vuoi davvero eliminare la posizione del router dal database?")) {
+            return;
+        }
+
+        if (routerRecordId) {
+            // Chiediamo al servizio di cancellarlo
+            const successo = await deviceService.deleteRouterPosition(routerRecordId);
+            if(successo){
+                routerLat = null;
+                routerLon = null;
+                routerRecordId = null;
+            }
+            if (!successo) return;
+        }
+
+        
+        if (mapManager) {
+            mapManager.updateRouterMarker();
+        }
+    }
     
     function onCambioTendina(event)
     {
@@ -159,6 +169,8 @@
     onRouterChange={onRouterChange}
     onExportPDF={onExportPDF}
     handleDeleteRecord={handleDeleteRecord}
+    handleDeleteRouter={handleDeleteRouter}
+    caricaTab={caricaTab}
 />
 <style>
     @import "./+page.css";

@@ -100,12 +100,17 @@ export class MapManager
 
         }});
     }
-    updateRouterMarker(Lat,Lon,routerID= null){
+    updateRouterMarker(RouterData){
+        
         if (!this.map || !this.L) return; // Assicurati che la mappa sia inizializzata
         if(this.routerMarker){
             this.map.removeLayer(this.routerMarker);
             this.routerMarker=null;
         }
+        if (!RouterData) return;
+        const Lat = parseFloat(RouterData.Latitude);
+        const Lon = parseFloat(RouterData.Longitude);
+        const routerID = RouterData.id || null;
         if(!isNaN(Lat) && !isNaN(Lon)){
             const wifiIcon= this.L.divIcon({
                 className: 'custom-rputer-pin',

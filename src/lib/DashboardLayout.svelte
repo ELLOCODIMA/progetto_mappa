@@ -10,7 +10,9 @@
         onCambioTendina, 
         onRouterChange, 
         onExportPDF, 
-        handleDeleteRecord
+        handleDeleteRecord,
+        handleDeleteRouter,
+        caricaTab
     }=$props();
 </script>
  
