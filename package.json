@@ -19,6 +19,7 @@
 	},
 	"dependencies": {
 		"@supabase/supabase-js": "^2.105.4",
+		"@turf/turf": "^7.3.5",
 		"html2pdf.js": "^0.14.0",
 		"leaflet": "^1.9.4"
 	}

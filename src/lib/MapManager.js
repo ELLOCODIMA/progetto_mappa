@@ -1,5 +1,5 @@
 
-
+import * as turf from '@turf/turf';
 
 export class MapManager 
 {
@@ -14,6 +14,7 @@ export class MapManager
         this.L=null;
         this.markers=[];
         this.routerMarker=null;
+        this.covarageLayer= null;
     }
     async init()
     {
@@ -109,6 +110,28 @@ export class MapManager
             this.markers.push(marker);
 
         }});
+        if (this.covarageLayer){
+            this.map.removeLayer(this.covarageLayer);
+            this.covarageLayer=null;
+        }
+        const validPoints=gpsData.filter(p=>!isNaN(parseFloat(p.Latitude))&&  !isNaN(parseFloat(p.Longitude)));
+
+        if (validPoints.length >=3){
+            const turfPoints =turf.featureCollection(validPoints.map(p=>turf.point([parseFloat(p.Longitude),parseFloat(p.Latitude)])));
+            const hull=turf.convex(turfPoints);
+            if(hull){
+                this.covarageLayer=this.L.geoJSON(hull,{
+                    style:{
+                        color: '#3b82f6',      // Colore del bordo (blu)
+                        weight: 2,             // Spessore del bordo
+                        opacity: 0.8,
+                        fillColor: '#3b82f6',  // Colore di riempimento
+                        fillOpacity: 0.15      // Trasparenza (si vedranno le strade sotto)
+                    }
+                }).addTo(this.map);
+                this.covarageLayer.bringToBack();
+            }
+        }
     }
     updateRouterMarker(RouterData){
         

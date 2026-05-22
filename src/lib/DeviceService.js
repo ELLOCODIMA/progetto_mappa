@@ -30,8 +30,9 @@ export class DeviceService {
     }
     subscribeToChanges(onUpdate) 
     {
+        const nomeCanale = 'canale_' + this.tableName + '_' + Date.now();
         this.subscription = supabase
-            .channel('public:'+this.tableName)
+            .channel(nomeCanale)
             .on('postgres_changes', { event: '*', schema: 'public', table: this.tableName }, async (payload) => {
                 console.log('Change received:', payload);
                 const newData = await this.fetchData();
@@ -44,6 +45,7 @@ export class DeviceService {
     unsubscribe() {
         if (this.subscription) {
             supabase.removeChannel(this.subscription);
+            this.subscription = null;
             
         }
     }
