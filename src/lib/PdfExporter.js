@@ -1,118 +1,158 @@
+
 import { browser } from '$app/environment';
+
 import { CalcolaDistanza } from './GeoUtils';
 
-export async function exportToPDF(mapContainer, tableData, selectedTable, routerData) {
+export async function exportToPDF(mapContainer,tableData,selectedTable,routerData) {
     if (!browser) return;
-
-    try {
-        // Import dinamici per evitare problemi lato server (SvelteKit)
-        const html2Module = await import('html2pdf.js');
+    try{
+        const html2Module = (await import('html2pdf.js'));
         const html2canvas = (await import('html2canvas')).default;
         const html2pdf = html2Module.default;
 
-        // 1. Cattura la mappa
-        const canvas = await html2canvas(mapContainer, {
+        const contenutopdf = document.createElement('div');
+        contenutopdf.style.padding = '10px';
+        contenutopdf.backgroundColor = 'white';
+        contenutopdf.style.fontFamily = 'Arial, sans-serif';
+        contenutopdf.style.width='770px';
+        contenutopdf.style.boxSizing='border-box';
+
+        const titolo = document.createElement('h1');
+        titolo.textContent='Wireless Signal Tracker - Report';
+        titolo.style.textAlign = 'center';
+        titolo.style.marginBottom = '10px';
+        titolo.style.background='none';
+        titolo.style.color = '#333';
+        contenutopdf.appendChild(titolo);
+
+        const data = document.createElement('p');
+        data.textContent = `Data report: ${new Date().toLocaleString()}`;
+        data.style.textAlign = 'center';
+        data.style.marginBottom = '25px';
+        data.style.color = '#555';
+        contenutopdf.appendChild(data);
+
+        const InfoTable = document.createElement('p');
+        InfoTable.textContent = `Tabella: ${selectedTable}`;
+        InfoTable.style.marginBottom = '20px';
+        InfoTable.style.fontWeight = 'bold'; 
+        InfoTable.style.fontSize = '16px';       
+       
+        contenutopdf.appendChild(InfoTable);
+
+        const mapScreenshot = document.createElement('h2');
+        mapScreenshot.textContent = 'Mappa:';
+        mapScreenshot.style.marginTop= '20px';
+        mapScreenshot.style.marginBottom = '15px';
+        mapScreenshot.style.color = '#333';
+        mapScreenshot.style.fontSize = '18px';
+        mapScreenshot.style.borderBottom = '2px solid #ccc';
+        mapScreenshot.style.paddingBottom = '5px';
+        contenutopdf.appendChild(mapScreenshot);
+
+        const canvas = await html2canvas(mapContainer, { 
             scale: 2,
             useCORS: true,
             allowTaint: false,
             logging: false,
+            
         });
-        const mapImgData = canvas.toDataURL('image/png');
+        const imgData = canvas.toDataURL('image/png');
+        const img = document.createElement('img');
+        img.src = imgData;
+        img.style.width = '97%';
+        img.style.height = 'auto';
+        img.style.border = '1px solid #ccc';
+        img.style.borderRadius = '12px';
+        img.style.marginBottom = '30px';
+        contenutopdf.appendChild(img);
 
-        // 2. Genera le righe della tabella dinamicamente
-        const colonneVisibili = ['device_id', 'Latitude', 'Longitude', 'Rssi', 'Snr', 'received_at', 'Distanza'];
+        const tableTitle = document.createElement('h2');
+        tableTitle.textContent = 'Dati GPS:';
+        tableTitle.style.marginTop= '30px';
+        tableTitle.style.marginBottom = '15px';
+        tableTitle.style.color = '#333';
+        tableTitle.style.fontSize = '18px';
+        tableTitle.style.borderBottom = '2px solid #ccc';
+        tableTitle.style.paddingBottom = '5px';
         
-        const tableRowsHtml = tableData.length > 0 
-            ? tableData.map((rowData, index) => {
-                const rowClass = index % 2 === 0 ? 'bg-white' : 'bg-light';
-                
-                let dateStr = rowData['received_at'] ? new Date(rowData['received_at']).toLocaleString('it-IT') : '-';
-                let latStr = typeof rowData['Latitude'] === 'number' ? rowData['Latitude'].toFixed(5) : '-';
-                let lonStr = typeof rowData['Longitude'] === 'number' ? rowData['Longitude'].toFixed(5) : '-';
-                let rssiStr = rowData['Rssi'] ? `${rowData['Rssi']} dBm` : '-';
-                let distStr = CalcolaDistanza(rowData.Latitude, rowData.Longitude, routerData) || '-';
+        contenutopdf.appendChild(tableTitle);
 
-                return `
-                    <tr class="${rowClass}">
-                        <td>${rowData['device_id'] || '-'}</td>
-                        <td>${latStr}</td>
-                        <td>${lonStr}</td>
-                        <td class="font-medium">${rssiStr}</td>
-                        <td>${rowData['Snr'] || '-'}</td>
-                        <td class="text-sm">${dateStr}</td>
-                        <td class="font-medium text-blue">${distStr}</td>
-                    </tr>
-                `;
-            }).join('')
-            : `<tr><td colspan="7" class="text-center p-4">Nessun dato disponibile</td></tr>`;
+        const table = document.createElement('table');
+        table.style.width = '97%';
+        
+        table.style.maxWidth = '97%';
+        table.style.tableLayout = 'fixed';       // ← forza le colonne a stare nei limiti
+        table.style.boxSizing = 'border-box';
+        table.style.borderCollapse = 'collapse';
+        table.style.marginBottom = '20px';
+        
 
-        // 3. Costruisci il template HTML/CSS moderno
-        const htmlContent = `
-            <div id="pdf-container" style="font-family: 'Inter', 'Segoe UI', sans-serif; padding: 20px; color: #1f2937; max-width: 800px; margin: 0 auto;">
-                
-                <style>
-                    /* Stili moderni incorporati */
-                    h1 { color: #111827; font-size: 24px; font-weight: 700; margin-bottom: 4px; text-align: center; }
-                    .subtitle { color: #6b7280; font-size: 14px; text-align: center; margin-bottom: 30px; }
-                    .badge { display: inline-block; background-color: #eff6ff; color: #1d4ed8; padding: 6px 12px; border-radius: 9999px; font-size: 14px; font-weight: 600; margin-bottom: 20px; }
-                    .section-title { font-size: 18px; font-weight: 600; color: #374151; margin-top: 30px; margin-bottom: 12px; border-bottom: 2px solid #e5e7eb; padding-bottom: 8px; }
-                    .map-image { width: 100%; height: auto; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); border: 1px solid #e5e7eb; }
-                    
-                    /* Stili Tabella */
-                    table { width: 100%; border-collapse: collapse; font-size: 13px; text-align: left; border-radius: 8px; overflow: hidden; }
-                    th { background-color: #f8fafc; color: #475569; font-weight: 600; padding: 12px 8px; text-transform: uppercase; font-size: 11px; letter-spacing: 0.05em; border-bottom: 1px solid #e2e8f0; text-align: center;}
-                    td { padding: 10px 8px; border-bottom: 1px solid #f1f5f9; color: #334155; text-align: center;}
-                    .bg-white { background-color: #ffffff; }
-                    .bg-light { background-color: #f8fafc; }
-                    .text-center { text-align: center; }
-                    .text-sm { font-size: 11px; }
-                    .font-medium { font-weight: 500; }
-                    .text-blue { color: #2563eb; }
-                </style>
+        if(tableData.length > 0){
+            const headerRow = table.insertRow();
+            const colonneVisibili = ['device_id', 'Latitude', 'Longitude', 'Rssi', 'Snr', 'received_at','Distanza'];
+            colonneVisibili.forEach(key => {
+                const cell = headerRow.insertCell();
+                cell.textContent = key;
+                cell.style.border = '1px solid #ddd';
+                cell.style.padding = '6px 4px';
+                cell.style.backgroundColor = '#f2f2f2';
+                cell.style.fontWeight = 'bold';
+                cell.style.textAlign = 'center';
+                cell.style.fontSize = '12px';
 
-                <h1>Wireless Signal Tracker</h1>
-                <div class="subtitle">Report generato il: ${new Date().toLocaleString('it-IT')}</div>
-                
-                <div>
-                    <span class="badge">Tabella sorgente: ${selectedTable}</span>
-                </div>
+                cell.style.fontWeight = 'bold';
+            });
+            tableData.forEach((rowData , index) => {
+                const row = table.insertRow();
+                colonneVisibili.forEach(key => {
+                    const cell = row.insertCell();
+                    let value = rowData[key];
+                    if(key === 'received_at' && value) {
+                        value = new Date(value).toLocaleString('it-IT');
+                    }else if((key === 'Latitude' || key === 'Longitude') && typeof value=='number'){ 
+                        value = value.toFixed(5);
+                    }else if(key === 'Rssi' && value){
+                        value = `${value} dBm`;
+                    }else if (key==='Distanza'){
+                        value=CalcolaDistanza(rowData.Latitude,rowData.Longitude,routerData)
+                    }
 
-                <div class="section-title">Mappa Tracciamento</div>
-                <img src="${mapImgData}" class="map-image" alt="Mappa del segnale" />
+                    cell.textContent = value||'-';
+                    cell.style.border = '1px solid #ddd';
+                    cell.style.padding = '4px 2px';
+                    cell.style.fontSize = '12px';
+                    cell.style.textAlign = 'center';
+                    cell.style.backgroundColor = index % 2 === 0 ? '#fff' : '#f9f9f9';
+                });
+            });
 
-                <div class="section-title" style="page-break-before: auto;">Dati GPS e Segnale</div>
-                <table>
-                    <thead>
-                        <tr>
-                            ${colonneVisibili.map(col => `<th>${col.replace('_', ' ')}</th>`).join('')}
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${tableRowsHtml}
-                    </tbody>
-                </table>
-            </div>
-        `;
 
-        // 4. Inserisci il template in un div temporaneo
-        const tempContainer = document.createElement('div');
-        tempContainer.innerHTML = htmlContent;
 
-        // 5. Opzioni per html2pdf
+
+        }else{
+            const noDataRow = table.insertRow();
+            const cell = noDataRow.insertCell();
+            cell.textContent = 'Nessun dato disponibile';
+            cell.style.border = '1px solid #ddd';
+            cell.style.padding = '10px';
+            cell.style.textAlign = 'center';
+        }
+        contenutopdf.appendChild(table);
+
         const opt = {
-            margin:       0.4,
-            filename:     `report_${selectedTable}_${new Date().toISOString().split('T')[0]}.pdf`,
-            image:        { type: 'jpeg', quality: 0.98 },
-            html2canvas:  { scale: 2, useCORS: true, logging: false },
-            jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' },
-            pagebreak:    { mode: ['css', 'legacy'], avoid: ['tr', 'img', '.section-title'] }
+            margin: [0.3, 0.2, 0.3, 0.2],
+            filename: `report_${selectedTable}_${new Date().toISOString().split('T')[0]}.pdf`,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2, useCORS: true,logging: false },
+            jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' },
+            pagebreak : {mode: ['css', 'legacy'],avoid:['tr', 'img']},
         };
+        html2pdf().set(opt).from(contenutopdf).save();
 
-        // 6. Genera ed esporta
-        await html2pdf().set(opt).from(tempContainer).save();
-
-    } catch (error) {
-        console.error("Errore durante l'esportazione in PDF:", error);
-        alert("Si è verificato un errore durante l'esportazione in PDF. Riprova più tardi.");
+    }catch(error){
+        console.error('Errore durante l\'esportazione in PDF:', error);
+        alert('Si è verificato un errore durante l\'esportazione in PDF. Riprova più tardi.');
     }
+    
 }
