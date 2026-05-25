@@ -161,7 +161,7 @@
             Longitude: routerLon,
             id: routerRecordId
         };
-        await exportToPDF(mapContainer,datigps,selectedTable,routerData);
+        await exportToPDF(mapContainer,datigps,selectedTable,routerData,mapManager);
     }
 
 </script>

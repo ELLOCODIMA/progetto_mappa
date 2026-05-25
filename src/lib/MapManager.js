@@ -21,7 +21,7 @@ export class MapManager
         // Caricamento dinamico di Leaflet per evitare errori in Server-Side Rendering (SSR)
         const leaflet = await import('leaflet');
         this.L = leaflet.default;
-        this.map = this.L.map(this.containerId).setView(this.initialcenter, this.initialZoom); // Centra la mappa su Milano
+        this.map = this.L.map(this.containerId,{preferCanvas: true}).setView(this.initialcenter, this.initialZoom); // Centra la mappa su Milano
         this.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; OpenStreetMap contributors'
         }).addTo(this.map);
